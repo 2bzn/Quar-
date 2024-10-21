@@ -246,6 +246,7 @@
 <script>
     let isPlaying = false;
     let audio = new Audio(); 
+    let currentReciter = "ياسر الدوسري"; // قارئ افتراضي
 
     function toggleMenu() {
         const menu = document.getElementById('menu');
@@ -253,7 +254,17 @@
     }
 
     function togglePlay() {
-        if (audio.src) {
+        const reciterSelect = document.getElementById('reciterSelect');
+        const selectedReciter = reciterSelect.value;
+
+        if (selectedReciter !== currentReciter) {
+            alert("لا توجد تلاوة لهذا القارئ. يتم التبديل إلى ياسر الدوسري.");
+            reciterSelect.value = currentReciter; // العودة إلى القارئ الافتراضي
+        }
+
+        const audioSrc = getAudioSource(currentReciter, document.getElementById('surahSelect').value);
+        if (audioSrc) {
+            audio.src = audioSrc;
             if (isPlaying) {
                 audio.pause();
             } else {
@@ -266,6 +277,14 @@
         } else {
             alert("من فضلك اختر القارئ والسورة أولاً.");
         }
+    }
+
+    function getAudioSource(reciter, surah) {
+        if (reciter === "ياسر الدوسري" && surah === "البقرة") {
+            return "/mnt/data/ياسر الدوسري - سورة البقره.mp3";
+        }
+        // يمكنك إضافة المزيد من خيارات الصوت هنا
+        return null; // لا يوجد مصدر للصوت
     }
 
     function toggleMenuVisibility(menuId) {
@@ -291,25 +310,8 @@
         inputElement.value = newValue;
     }
 
-    function loadRecitation() {
-        const reciter = document.getElementById('reciterSelect').value;
-        const surah = document.getElementById('surahSelect').value;
-        const verse = document.getElementById('verse').value;
+    // يمكنك إضافة أي وظائف إضافية هنا حسب الحاجة
 
-        if (reciter === "ياسر الدوسري" && surah === "البقرة") {
-            audio.src = "/mnt/data/ياسر الدوسري - سورة البقره.mp3";
-            audio.load();
-            audio.play();
-            isPlaying = true;
-            document.getElementById('playPauseIcon').innerHTML = '<path d="M6 6h12v12H6z"/>';
-        } else {
-            alert("عذراً، لا توجد تلاوة متاحة لهذا القارئ أو السورة.");
-        }
-    }
-
-    document.getElementById('reciterSelect').addEventListener('change', loadRecitation);
-    document.getElementById('surahSelect').addEventListener('change', loadRecitation);
-    document.getElementById('verse').addEventListener('change', loadRecitation);
 </script>
 
 </body>
