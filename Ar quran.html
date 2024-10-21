@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المقريء</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ffbb00;
+            font-family: Arial, sans-serif;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .play-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ffbb00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .play-button:active {
+            transform: scale(1.1);
+        }
+
+        .play-button svg {
+            fill: #000;
+            width: 50px;
+            height: 50px;
+        }
+
+        /* زر القائمة */
+        .menu-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ffbb00;
+        }
+
+        /* القائمة الجانبية */
+        .menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 250px;
+            height: 100%;
+            background-color: #111;
+            color: #fff;
+            transition: all 0.3s ease;
+            padding: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu.show {
+            right: 0;
+        }
+
+        .menu a {
+            color: #ffbb00;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .menu a:hover {
+            color: #fff;
+        }
+
+        .close-menu {
+            align-self: flex-end;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* أزرار الاختيار */
+        .select-container {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .select-button {
+            width: 90%;
+            max-width: 300px;
+            padding: 15px 30px;
+            background-color: transparent;
+            border: 2px solid #ffbb00;
+            border-radius: 30px;
+            color: #ffbb00;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .select-button.active {
+            background-color: #ffbb00; /* اللون الأصفر */
+            color: #000;
+        }
+
+        .select-menu {
+            display: none;
+            background-color: #111;
+            border: 2px solid #ffbb00;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .select-menu.show {
+            display: block;
+        }
+
+        .select-menu input, .select-menu select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #ffbb00;
+            background-color: #000;
+            color: #ffbb00;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* التحكم في الآية والتكرار */
+        .increment-decrement {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .increment-decrement button {
+            background-color: #ffbb00;
+            color: #000;
+            border: none;
+            width: 40px;
+            height: 40px;
+            margin: 0 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* تصميم تفاعلي */
+        @media (max-width: 768px) {
+            .menu {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-icon" onclick="toggleMenu()">☰</div>
+
+<div class="container">
+    <h1>المقريء</h1>
+
+    <div class="play-button" id="playPauseButton" onclick="togglePlay()">
+        <svg id="playPauseIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+    </div>
+
+    <!-- زر اختيار القارئ -->
+    <div class="select-container">
+        <button class="select-button" id="reciterButton" onclick="toggleMenuVisibility('reciterMenu')">اختر القارئ</button>
+        <div id="reciterMenu" class="select-menu">
+            <input type="text" id="reciterSearch" placeholder="ابحث عن القارئ..." oninput="filterOptions('reciterSelect', 'reciterSearch')">
+            <select id="reciterSelect">
+                <option>محمد أيوب</option>
+                <option>عبد الرحمن السديس</option>
+                <option>سعد الغامدي</option>
+                <option>مشاري العفاسي</option>
+                <option>ماهر المعيقلي</option>
+                <option>ياسر الدوسري</option>
+                <option>عبدالباسط عبدالصمد</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- زر اختيار السورة -->
+    <div class="select-container">
+        <button class="select-button" id="surahButton" onclick="toggleMenuVisibility('surahMenu')">اختر السورة</button>
+        <div id="surahMenu" class="select-menu">
+            <input type="text" id="surahSearch" placeholder="ابحث عن السورة..." oninput="filterOptions('surahSelect', 'surahSearch')">
+            <select id="surahSelect">
+                <option>الفاتحة</option>
+                <option>البقرة</option>
+                <option>آل عمران</option>
+                <option>النساء</option>
+                <option>المائدة</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- التحكم في الآية -->
+    <div class="increment-decrement">
+        <label for="verse">الآية:</label>
+        <button onclick="changeValue('verse', -1, 1)">-</button>
+        <input type="text" id="verse" value="1" readonly>
+        <button onclick="changeValue('verse', 1)">+</button>
+    </div>
+
+    <!-- التحكم في التكرار -->
+    <div class="increment-decrement">
+        <label for="repeat">التكرار:</label>
+        <button onclick="changeValue('repeat', -1, 0)">-</button>
+        <input type="text" id="repeat" value="0" readonly>
+        <button onclick="changeValue('repeat', 1)">+</button>
+    </div>
+</div>
+<footer style="text-align: center; padding: 10px; color: #ffbb00;">
+  جميع الحقوق محفوظة © 2024
+</footer>
+
+<!-- القائمة الجانبية -->
+<div class="menu" id="menu">
+    <span class="close-menu" onclick="toggleMenu()">X</span>
+    <a href="#">الرئيسية</a>
+    <a href="#">المقرئين</a>
+    <a href="#">السور</a>
+    <a href="#">التكرار</a>
+    <a href="#">إعدادات</a>
+</div>
+
+<script>
+    let isPlaying = false;
+    let audio = new Audio("/mnt/data/ياسر الدوسري - سورة البقره.mp3"); // ربط الملف المحلي
+
+    function toggleMenu() {
+        const menu = document.getElementById('menu');
+        menu.classList.toggle('show');
+    }
+
+    function togglePlay() {
+        if (audio.src) {
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            isPlaying = !isPlaying;
+
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            playPauseIcon.innerHTML = isPlaying ? '<path d="M6 6h12v12H6z"/>' : '<path d="M8 5v14l11-7z"/>';
+        } else {
+            alert("من فضلك اختر القارئ والسورة أولاً.");
+        }
+    }
+
+    function toggleMenuVisibility(menuId) {
+        const menu = document.getElementById(menuId);
+        menu.classList.toggle('show');
+
+        const button = document.getElementById(menuId.replace('Menu', 'Button'));
+        button.classList.toggle('active');
+    }
+
+    function filterOptions(selectId, searchId) {
+        const searchValue = document.getElementById(searchId).value.toLowerCase();
+        const selectElement = document.getElementById(selectId);
+        for (const option of selectElement.options) {
+            option.style.display = option.text.toLowerCase().includes(searchValue) ? 'block' : 'none';
+        }
+    }
+
+    function changeValue(inputId, step, minValue = 0) {
+        const inputElement = document.getElementById(inputId);
+        const currentValue = parseInt(inputElement.value);
+        const newValue = Math.max(minValue, currentValue + step);
+        inputElement.value = newValue;
+    }
+
+    function loadRecitation() {
+        const reciter = document.getElementById('reciterSelect').value;
+        const surah = document.getElementById('surahSelect').value;
+        const verse = document.getElementById('verse').value;
+
+        if (reciter === "ياسر الدوسري" && surah === "البقرة") {
+            audio.src = "/mnt/data/ياسر الدوسري - سورة البقره.mp3";
+            audio.load();
+            audio.play();
+            isPlaying = true;
+            document.getElementById('playPauseIcon').innerHTML = '<path d="M6 6h12v12H6z"/>';
+        } else {
+            alert("عذراً، لا توجد تلاوة متاحة لهذا القارئ أو السورة.");
+        }
+    }
+
+    document.getElementById('reciterSelect').addEventListener('change', loadRecitation);
+    document.getElementById('surahSelect').addEventListener('change', loadRecitation);
+    document.getElementById('verse').addEventListener('change', loadRecitation);
+</script>
+
+</body>
+</html>
